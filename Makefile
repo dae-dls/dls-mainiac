@@ -1,5 +1,5 @@
 # This is needed so local copy of dependencies supercede the installed ones.
-BASIC_PATH=src:../lib-maxiv-signals:../dls-logging-formatter/src
+BASIC_PATH=src:../dls-signals/src:../dls-logging-formatter/src
 PYTHONPATH=$(BASIC_PATH)
 
 # ------------------------------------------------------------------

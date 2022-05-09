@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-test_require = ["lib-maxiv-signals", "pytest", "pytest-cov"]
+test_require = ["dls-signals", "pytest", "pytest-cov"]
 
 
 def main():
