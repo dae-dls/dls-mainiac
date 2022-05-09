@@ -1,0 +1,39 @@
+package:
+  name: lib-maxiv-mainiac
+  version: "2.0.0"
+
+source:
+  # Relative path to the parent directory of the recipe.
+  path: ..
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.6
+  run:
+    - python >=3.6
+    - logging-formatter
+    - psutil
+
+test:
+  imports:
+    - dls_mainiac_lib
+  requires:
+    - pip
+  commands:
+    - pip check
+    - python3 -m dls_mainiac_lib.version --json
+
+about:
+  home: https://gitlab.maxiv.lu.se/kits-maxiv/lib-maxiv-mainiac
+  license: LGPL-3.0-or-later
+  license_file: ../LICENSE.txt
+  summary: Base class with methods supporting MaxIV command-line programs.
+  description: |
+    The software development group needs to ensure that command line programs have consistent arguments and logging.
+    This reduces development time to create a familiar argument pattern and logging for users.
+    This library provides a base class to implement standard command arguments and log location and format.

@@ -1,0 +1,7 @@
+test-python36:
+  # Fail pipeline if any unit test fails.
+  allow_failure: false
+
+include:
+  - project: 'kits-maxiv/cfg-maxiv-gitlabci'
+    file: '/.python-ci.yml'
