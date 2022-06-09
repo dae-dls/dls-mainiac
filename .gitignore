@@ -9,3 +9,7 @@ logger.log
 .coverage
 
 *.log
+
+build/
+
+dls_mainiac.egg-info/

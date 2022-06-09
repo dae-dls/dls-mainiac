@@ -1,23 +1,16 @@
 from setuptools import setup, find_packages
 
 
-test_require = ["dls-signals", "pytest", "pytest-cov"]
-
-
 def main():
-    name = "lib-maxiv-mainiac"
-    version = "2.0.0"
-    description = "Base class with methods supporting MaxIV command-line programs."
-    author = "KITS - Controls"
-    author_email = "KITS@maxiv.lu.se"
+    name = "dls-mainiac"
+    version = "3.1.1"
+    description = "Mainiac library."
+    author = "David Erb"
+    author_email = "david.erb@diamond.ac.uk"
     license = "GPLv3"
-    url = "https://gitlab.maxiv.lu.se/kits-maxiv/lib-maxiv-mainiac"
+    url = "https://github.com"
     packages = find_packages(exclude=["tests", "*.tests.*", "tests.*", "tests"])
-    install_requires = [
-        "logging-formatter",
-        "psutil",
-        "setuptools",
-    ]
+    install_requires = ["dls-logging-formatter"]
     include_package_data = True
 
     setup(
@@ -31,7 +24,6 @@ def main():
         packages=packages,
         install_requires=install_requires,
         include_package_data=include_package_data,
-        extras_require={"tests": test_require},
     )
 
 
