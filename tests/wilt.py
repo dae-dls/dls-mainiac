@@ -2,7 +2,7 @@ import sys
 import time
 import signal
 
-from dls_signals_lib.signal import Signal
+from dls_siggy_lib.signal import Signal
 
 
 def main():

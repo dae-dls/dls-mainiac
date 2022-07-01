@@ -1,5 +1,5 @@
 # This is needed so local copy of dependencies supercede the installed ones.
-BASIC_PATH=src:../dls-signals/src:../dls-logform/src
+BASIC_PATH=src:../dls-siggy/src:../dls-logform/src
 PYTHONPATH=$(BASIC_PATH)
 
 # ------------------------------------------------------------------

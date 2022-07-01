@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 def main():
     name = "dls-mainiac"
-    version = "3.1.2"
+    version = "3.1.3"
     description = "Mainiac library."
     author = "David Erb"
     author_email = "david.erb@diamond.ac.uk"
