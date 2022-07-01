@@ -8,7 +8,7 @@ import pytest
 from dls_mainiac_lib.version import meta as version_meta
 
 # Formatting of testing log messages.
-from dls_logging_formatter.dls_logging_formatter import DlsLoggingFormatter
+from dls_logform.dls_logform import DlsLogform
 
 import logging
 
@@ -39,7 +39,7 @@ def constants(request):
 @pytest.fixture()
 def logging_setup():
 
-    formatter = DlsLoggingFormatter(type="short")
+    formatter = DlsLogform(type="short")
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)

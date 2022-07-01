@@ -4,7 +4,7 @@ import argparse
 import psutil
 
 import dls_mainiac_lib
-import dls_logging_formatter.version
+import dls_logform.version
 
 psutil_version = psutil.__version__
 
@@ -24,7 +24,7 @@ def meta(given_meta=None):
     """
     s = {}
     s["dls_mainiac_lib"] = version()
-    s.update(dls_logging_formatter.version.meta())
+    s.update(dls_logform.version.meta())
     s["psutil"] = psutil_version
 
     if given_meta is not None:

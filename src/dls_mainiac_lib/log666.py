@@ -3,7 +3,7 @@ import multiprocessing
 import threading
 
 # Log formatter.
-from dls_logging_formatter.dls_logging_formatter import DlsLoggingFormatter
+from dls_logform.dls_logform import DlsLogform
 
 # Python standard logging.
 import logging
@@ -57,7 +57,7 @@ class Log666:
         )
 
         # Let logging write custom formatted messages to stdout.
-        logfile_handler.setFormatter(DlsLoggingFormatter())
+        logfile_handler.setFormatter(DlsLogform())
         logging.getLogger().addHandler(logfile_handler)
 
         return logfile_handler

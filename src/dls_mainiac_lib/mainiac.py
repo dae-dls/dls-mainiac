@@ -11,8 +11,8 @@ import sys
 from string import Template
 
 # Log formatter.
-from dls_logging_formatter.dls_logging_formatter import DlsLoggingFormatter
-from dls_logging_formatter.dls_logging_formatter import format_exception_causes
+from dls_logform.dls_logform import DlsLogform
+from dls_logform.dls_logform import format_exception_causes
 
 # Rotating log file.
 from dls_mainiac_lib.log666 import Log666
@@ -141,7 +141,7 @@ class Mainiac:
             "pleads for help",
             "is lost",
             "displays frowny face",
-            "cannot think like that"
+            "cannot think like that",
         ]
 
         return synonyms[random.randrange(0, len(synonyms), 1)]
@@ -217,9 +217,9 @@ class Mainiac:
             # \\d* : another set of zero or more digits (for things like -2e-5 and -7.e-3)
             # e : to match the exponent marker
             # re.I makes it match both -2e-5 and -2E-5. Using p.match means that it only searches from the start of each string.
-            p = re.compile('-\\d*\\.?\\d*e', re.I)
+            p = re.compile("-\\d*\\.?\\d*e", re.I)
             # logger.debug("arglist original %s" % (arglist,))
-            arglist = [' ' + a if p.match(a) else a for a in arglist]            
+            arglist = [" " + a if p.match(a) else a for a in arglist]
             # logger.debug("arglist treated for negative scientific notation %s" % (arglist,))
 
             # Make a pre-parser, who does not look for --help.
@@ -350,12 +350,12 @@ class Mainiac:
             # User wants verbose?
             if hasattr(self._args, "verbose") and self._args.verbose:
                 # Let logging write custom formatted messages to stdout, long format.
-                formatter = DlsLoggingFormatter()
+                formatter = DlsLogform()
                 console_handler.setFormatter(formatter)
                 # Log level for the console, verbose
                 console_handler.setLevel(logging.DEBUG)
             else:
-                formatter = DlsLoggingFormatter(type="bare")
+                formatter = DlsLogform(type="bare")
                 console_handler.setFormatter(formatter)
                 # Log level for the console, not verbose.
                 console_handler.setLevel(logging.INFO)
@@ -374,7 +374,11 @@ class Mainiac:
             # logging.getLogger("matplotlib.font_manager").setLevel("INFO")
 
         except Exception as exception:
-            logger.exception("unable configure logging: %s %s" % (type(exception).__name__, str(exception)), exc_info=exception)
+            logger.exception(
+                "unable configure logging: %s %s"
+                % (type(exception).__name__, str(exception)),
+                exc_info=exception,
+            )
 
     # ----------------------------------------------------------------
     def substitute_symbols_in_dict(self, dict, symtable):
