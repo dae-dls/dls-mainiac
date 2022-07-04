@@ -50,7 +50,7 @@ class Log666:
             os.makedirs(logfile_directory)
             os.umask(umask)
 
-        logfile_filename = "%s/logging_formatted.log" % (logfile_directory)
+        logfile_filename = "%s/logform.log" % (logfile_directory)
 
         logfile_handler = PermittedRotatingFileHandler(
             logfile_filename, max_bytes, backup_count
