@@ -32,7 +32,7 @@ class PermittedRotatingFileHandler(logging.handlers.RotatingFileHandler):
 # -------------------------------------------------------------------------
 class Log666:
     # -------------------------------------------------------------------------
-    def start_logfile(program_name, max_bytes=10000000, backup_count=2):
+    def start_logfile(program_name, settings):
         """
         Start a rotating log in a standard logging directory location.
         """
@@ -52,8 +52,15 @@ class Log666:
 
         logfile_filename = "%s/logform.log" % (logfile_directory)
 
+        max_bytes = settings.get("max_bytes", 20000000)
+        backup_count = settings.get("backup_count", 4)
         logfile_handler = PermittedRotatingFileHandler(
-            logfile_filename, max_bytes, backup_count
+            logfile_filename, maxBytes=max_bytes, backupCount=backup_count
+        )
+
+        print(
+            "********** [LOGROTA] logfile_handler is a %s for %s with max_bytes %d"
+            % (type(logfile_handler).__name__, logfile_filename, max_bytes)
         )
 
         # Let logging write custom formatted messages to stdout.

@@ -181,7 +181,7 @@ class Mainiac:
         )
 
     # --------------------------------------------------------------------------
-    def parse_args_and_configure_logging(self, arglist=None):
+    def parse_args_and_configure_logging(self, arglist=None, settings=None):
         """
         Parse command line and configure runtime logging.
         """
@@ -189,7 +189,7 @@ class Mainiac:
         try:
             self.parse_args(arglist)
 
-            self.configure_logging()
+            self.configure_logging(settings=settings)
 
         except Exception as exception:
             logger.exception(
@@ -320,11 +320,14 @@ class Mainiac:
         return args
 
     # --------------------------------------------------------------------------
-    def configure_logging(self):
+    def configure_logging(self, settings=None):
         """
         Configure runtime logging.
         Presume that self._args is already set.
         """
+
+        if settings is None:
+            settings = {}
 
         try:
             # All output throughout the program goes through python logging.
@@ -361,7 +364,7 @@ class Mainiac:
                 console_handler.setLevel(logging.INFO)
 
             # Always output log messages to output file named for this bisstis.
-            logfile_handler = Log666.start_logfile(self._program_name)
+            logfile_handler = Log666.start_logfile(self._program_name, settings)
 
             # File log level.
             logfile_handler.setLevel(logging.DEBUG)
