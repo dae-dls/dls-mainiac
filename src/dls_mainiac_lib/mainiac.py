@@ -434,7 +434,8 @@ class Mainiac:
                 graypy_handler = graypy_handler_class(
                     host, port, debugging_fields=False
                 )
-                graypy_handler.setFormatter(DlsLogform(type="bare"))
+                # We want "format" of separate indices for the database.
+                graypy_handler.setFormatter(DlsLogform(type="dls"))
                 graypy_handler.setLevel(logging.DEBUG)
                 logging.getLogger().addHandler(graypy_handler)
 
