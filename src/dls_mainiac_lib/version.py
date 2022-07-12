@@ -27,6 +27,15 @@ def meta(given_meta=None):
     s.update(dls_logform.version.meta())
     s["psutil"] = psutil_version
 
+    try:
+        import graypy
+
+        s["graypy"] = graypy.__version__
+        s["graypy"] = [str(s) for s in s["graypy"]]
+        s["graypy"] = ".".join(s["graypy"])
+    except Exception as exception:
+        s["graypy"] = "unavailable"
+
     if given_meta is not None:
         given_meta.update(s)
     else:

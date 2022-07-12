@@ -417,11 +417,37 @@ class Mainiac:
                 mpqueue = None
 
             # -------------------------------------------------------------------
+            # Graylog.
+            graypy_settings = settings.get("graypy", {})
+            graypy_enabled = graypy_settings.get("enabled", False)
+            if graypy_enabled:
+                import graypy
+
+                # Create and enable graylog handler
+                if graypy_settings.get("protocol", "UDP") == "UDP":
+                    graypy_handler_class = graypy.GELFUDPHandler
+                else:
+                    graypy_handler_class = graypy.GELFTCPHandler
+
+                host = graypy_settings.get("host")
+                port = graypy_settings.get("port")
+                graypy_handler = graypy_handler_class(
+                    host, port, debugging_fields=False
+                )
+                graypy_handler.setFormatter(DlsLogform(type="bare"))
+                graypy_handler.setLevel(logging.DEBUG)
+                logging.getLogger().addHandler(graypy_handler)
+
+            else:
+                graypy_handler = None
+
+            # -------------------------------------------------------------------
 
             # Expose handlers instance attributes.
             self.console_handler = console_handler
             self.logfile_handler = logfile_handler
             self.mpqueue = mpqueue
+            self.graypy_handler = graypy_handler
 
             # Don't show matplotlib font debug.
             # logging.getLogger("matplotlib.font_manager").setLevel("INFO")
@@ -437,6 +463,7 @@ class Mainiac:
     def _listen_on_mpqueue(self, mpqueue):
         while True:
             record = mpqueue.get()
+            setattr(record, "bare", True)
             logger.handle(record)
             self.mpqueue_heard_count += 1
 
