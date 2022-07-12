@@ -39,7 +39,7 @@ def constants(request):
 @pytest.fixture()
 def logging_setup():
 
-    formatter = DlsLogform(type="short")
+    formatter = DlsLogform(type="long")
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)

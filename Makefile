@@ -5,6 +5,10 @@ PYTHONPATH=$(BASIC_PATH)
 # ------------------------------------------------------------------
 # Tests individually.
 
+test:
+	PYTHONPATH=tests:$(PYTHONPATH) \
+	python3 -m pytest -sv -ra --tb=line tests/$(t)
+
 test-01-simple:
 	PYTHONPATH=$(PYTHONPATH) python3 -m pytest -sv -ra --tb=line tests/test_01_simple.py
 

@@ -1,3 +1,5 @@
+import multiprocessing
+import threading
 import re
 import os
 import sys
@@ -30,6 +32,21 @@ class ParserBadSubparser(RuntimeError):
 
 class ParserOtherExit(RuntimeError):
     pass
+
+
+class PidFilter(logging.Filter):
+    def __init__(self):
+        self.__master_pid = os.getpid()
+
+    def filter(self, record):
+        if record.process == self.__master_pid:
+            print(f"********** SKIP record.process {record.process}")
+            return 0
+        else:
+            print(
+                f"********** KEEP record.process {record.process} and os.getpid() {os.getpid()}"
+            )
+            return 1
 
 
 @contextlib.contextmanager
@@ -65,6 +82,10 @@ class Mainiac:
         # Expose handlers as instance attributes.
         self.console_handler = None
         self.logfile_handler = None
+        self.mpqueue_handler = None
+
+        # Access for testing verification.
+        self.mpqueue_heard_count = 0
 
     # ----------------------------------------------------------
     def program_name(self, program_name=None):
@@ -334,44 +355,74 @@ class Mainiac:
             # If debug_level is given as any value, then all output uses logging formatter at that level.
             # If debug_level is not given, then uses INFO with only the message part.
 
-            # Always output log messages to the console.
-            # OBS! Taurus already sets up a console handler.
-            console_handler = None
-            for handler in logging.getLogger().handlers:
-                # TODO: In configure_logging, properly detect existence of an existing Taurus console hander.
-                console_handler = handler
-                break
-
-            # No handler already?
-            if console_handler is None:
-                console_handler = logging.StreamHandler()
-                logging.getLogger().addHandler(console_handler)
-
             # Log level for all modules.
             logging.getLogger().setLevel(logging.DEBUG)
 
-            # User wants verbose?
-            if hasattr(self._args, "verbose") and self._args.verbose:
-                # Let logging write custom formatted messages to stdout, long format.
-                formatter = DlsLogform()
-                console_handler.setFormatter(formatter)
-                # Log level for the console, verbose
-                console_handler.setLevel(logging.DEBUG)
+            # -------------------------------------------------------------------
+            # Console.
+            console_settings = settings.get("console", {})
+            console_enabled = console_settings.get("enabled", True)
+            if console_enabled:
+                # Always output log messages to the console.
+                # OBS! Taurus already sets up a console handler.
+                console_handler = None
+                for handler in logging.getLogger().handlers:
+                    # TODO: In configure_logging, properly detect existence of an existing Taurus console hander.
+                    console_handler = handler
+                    break
+
+                # No handler already?
+                if console_handler is None:
+                    console_handler = logging.StreamHandler()
+                    logging.getLogger().addHandler(console_handler)
+
+                # User wants verbose?
+                if hasattr(self._args, "verbose") and self._args.verbose:
+                    # Let logging write custom formatted messages to stdout, long format.
+                    formatter = DlsLogform()
+                    console_handler.setFormatter(formatter)
+                    # Log level for the console, verbose
+                    console_handler.setLevel(logging.DEBUG)
+                else:
+                    formatter = DlsLogform(type="bare")
+                    console_handler.setFormatter(formatter)
+                    # Log level for the console, not verbose.
+                    console_handler.setLevel(logging.INFO)
             else:
-                formatter = DlsLogform(type="bare")
-                console_handler.setFormatter(formatter)
-                # Log level for the console, not verbose.
-                console_handler.setLevel(logging.INFO)
+                console_handler = None
 
-            # Always output log messages to output file named for this bisstis.
-            logfile_handler = Log666.start_logfile(self._program_name, settings)
+            # -------------------------------------------------------------------
+            # File.
+            logfile_settings = settings.get("logfile", {})
+            logfile_enabled = logfile_settings.get("enabled", True)
+            if logfile_enabled:
+                logfile_handler = Log666.start_logfile(self._program_name, settings)
+                logfile_handler.setLevel(logging.DEBUG)
+            else:
+                logfile_handler = None
 
-            # File log level.
-            logfile_handler.setLevel(logging.DEBUG)
+            # -------------------------------------------------------------------
+            # Queue.
+            mpqueue_settings = settings.get("mpqueue", {})
+            mpqueue_enabled = mpqueue_settings.get("enabled", False)
+            if mpqueue_enabled:
+                self.__mpqueue = multiprocessing.Queue(-1)
+                self.__mpqueue_thread = threading.Thread(target=self._listen_on_mpqueue)
+                self.__mpqueue_thread.daemon = True
+                self.__mpqueue_thread.start()
+                mpqueue_handler = logging.handlers.QueueHandler(self.__mpqueue)
+                mpqueue_handler.setLevel(logging.DEBUG)
+                # mpqueue_handler.addFilter(PidFilter())
+                logging.getLogger().addHandler(mpqueue_handler)
+            else:
+                mpqueue_handler = None
+
+            # -------------------------------------------------------------------
 
             # Expose handlers instance attributes.
             self.console_handler = console_handler
             self.logfile_handler = logfile_handler
+            self.mpqueue_handler = mpqueue_handler
 
             # Don't show matplotlib font debug.
             # logging.getLogger("matplotlib.font_manager").setLevel("INFO")
@@ -381,6 +432,28 @@ class Mainiac:
                 "unable configure logging: %s %s"
                 % (type(exception).__name__, str(exception)),
                 exc_info=exception,
+            )
+
+    # ----------------------------------------------------------------
+    def _listen_on_mpqueue(self):
+        while True:
+            record = self.__mpqueue.get()
+
+            # TODO: See if mpqueue messages from self's pid can be rejected before being sent by a filter?
+            if record.process == os.getpid():
+                print(f"********** SKIP record.process {record.process}")
+                return
+
+            print(
+                f"********** KEEP record.process {record.process} and os.getpid() {os.getpid()}"
+            )
+
+            logger = logging.getLogger(record.name)
+            record.msg = ">" + record.msg
+            logger.handle(record)
+            self.mpqueue_heard_count += 1
+            print(
+                f"********** self.mpqueue_heard_count bumped to {self.mpqueue_heard_count}"
             )
 
     # ----------------------------------------------------------------
