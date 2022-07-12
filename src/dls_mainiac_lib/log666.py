@@ -58,11 +58,6 @@ class Log666:
             logfile_filename, maxBytes=max_bytes, backupCount=backup_count
         )
 
-        print(
-            "********** [LOGROTA] logfile_handler is a %s for %s with max_bytes %d"
-            % (type(logfile_handler).__name__, logfile_filename, max_bytes)
-        )
-
         # Let logging write custom formatted messages to stdout.
         logfile_handler.setFormatter(DlsLogform())
         logging.getLogger().addHandler(logfile_handler)

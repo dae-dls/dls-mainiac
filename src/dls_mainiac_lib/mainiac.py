@@ -406,23 +406,22 @@ class Mainiac:
             mpqueue_settings = settings.get("mpqueue", {})
             mpqueue_enabled = mpqueue_settings.get("enabled", False)
             if mpqueue_enabled:
-                self.__mpqueue = multiprocessing.Queue(-1)
-                self.__mpqueue_thread = threading.Thread(target=self._listen_on_mpqueue)
+                mpqueue = multiprocessing.Queue(-1)
+                # Start a thread to be the queue listener.
+                self.__mpqueue_thread = threading.Thread(
+                    target=self._listen_on_mpqueue, args=[mpqueue]
+                )
                 self.__mpqueue_thread.daemon = True
                 self.__mpqueue_thread.start()
-                mpqueue_handler = logging.handlers.QueueHandler(self.__mpqueue)
-                mpqueue_handler.setLevel(logging.DEBUG)
-                # mpqueue_handler.addFilter(PidFilter())
-                logging.getLogger().addHandler(mpqueue_handler)
             else:
-                mpqueue_handler = None
+                mpqueue = None
 
             # -------------------------------------------------------------------
 
             # Expose handlers instance attributes.
             self.console_handler = console_handler
             self.logfile_handler = logfile_handler
-            self.mpqueue_handler = mpqueue_handler
+            self.mpqueue = mpqueue
 
             # Don't show matplotlib font debug.
             # logging.getLogger("matplotlib.font_manager").setLevel("INFO")
@@ -435,26 +434,11 @@ class Mainiac:
             )
 
     # ----------------------------------------------------------------
-    def _listen_on_mpqueue(self):
+    def _listen_on_mpqueue(self, mpqueue):
         while True:
-            record = self.__mpqueue.get()
-
-            # TODO: See if mpqueue messages from self's pid can be rejected before being sent by a filter?
-            if record.process == os.getpid():
-                print(f"********** SKIP record.process {record.process}")
-                return
-
-            print(
-                f"********** KEEP record.process {record.process} and os.getpid() {os.getpid()}"
-            )
-
-            logger = logging.getLogger(record.name)
-            record.msg = ">" + record.msg
+            record = mpqueue.get()
             logger.handle(record)
             self.mpqueue_heard_count += 1
-            print(
-                f"********** self.mpqueue_heard_count bumped to {self.mpqueue_heard_count}"
-            )
 
     # ----------------------------------------------------------------
     def substitute_symbols_in_dict(self, dict, symtable):
