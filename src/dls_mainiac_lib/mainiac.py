@@ -14,7 +14,7 @@ from string import Template
 
 # Log formatter.
 from dls_logform.dls_logform import DlsLogform
-from dls_logform.dls_logform import format_exception_causes
+from dls_logform.functions import format_exception_causes
 
 # Rotating log file.
 from dls_mainiac_lib.log666 import Log666
@@ -395,8 +395,9 @@ class Mainiac:
             # File.
             logfile_settings = settings.get("logfile", {})
             logfile_enabled = logfile_settings.get("enabled", True)
+            logfile_name = logfile_settings.get("filename", self._program_name)
             if logfile_enabled:
-                logfile_handler = Log666.start_logfile(self._program_name, settings)
+                logfile_handler = Log666.start_logfile(logfile_name, settings)
                 logfile_handler.setLevel(logging.DEBUG)
             else:
                 logfile_handler = None
